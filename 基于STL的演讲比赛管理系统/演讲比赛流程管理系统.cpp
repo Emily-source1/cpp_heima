@@ -14,15 +14,18 @@ int main(int argc, const char * argv[]) {
         
         cout << "请输入你选择的数字: " << endl;
         cin >> choice;
+        cin.get();
         
         switch(choice)
         { 
               
-            case 1://开始演讲比赛
+            case 1:
+                //开始演讲比赛
                 sm.creatSpeech();
                 break;
-            case 2://查看往届记录
-               
+            case 2:
+                //查看往届记录
+                sm.showRecord();
                 break;
             case 3://清空比赛记录
                 break;

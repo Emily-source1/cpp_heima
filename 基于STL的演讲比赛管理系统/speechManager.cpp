@@ -7,6 +7,10 @@ speechManager::speechManager()
     this->initSpeech();
     //初始化12名选手
     this->initSpeaker();
+    //加载记录
+    this->loadRecord();
+    //清空记录容器
+    this->m_Record.clear();
 }
 
 //展示菜单
@@ -79,24 +83,38 @@ void speechManager::creatSpeech()
     //2.比赛
     this->speechContest();
     //3.显示晋级结果
+    this->showScore();
     
     //第二轮比赛
+    this->m_Index++;
     //1.抽签
+    this->speechDraw();
     //2.比赛
+    this->speechContest();
     //3.显示最终结果
+    this->showScore();
     //4.保存成绩结果到文件中
-    cout << "请按回车键返回主菜单..." << endl;
-    cin.ignore();//清空缓冲区
-    cin.get();//等待用户输入空格
-   
+    this->saveRecord();
+    
+    //初始化属性
+    this->initSpeech();
+    //初始化12名选手
+    this->initSpeaker();
+    //加载记录
+    this->loadRecord();
+    
+    system("clear");
+    cout << "请按回车键继续" << endl;
+    cin.get();
+    cout << "本届比赛已完毕" << endl;
 }
 
 //抽签
 void speechManager::speechDraw()
 {
-    cout << "这是第" << this->m_Index << "轮比赛"<<endl;
+    cout << "这是第" << this->m_Index << "轮比赛选手正在抽签"<<endl;
     cout << "-------------------------" << endl;
-    cout << "12名比赛选手的抽签顺序：" ;
+    cout << "抽签后演讲顺序如下：" ;
     
     if(this->m_Index == 1)
     {//第一轮
@@ -124,11 +142,14 @@ void speechManager::speechDraw()
             cout << (*it) << " ";
         }
         cout << endl;
-        
-        cout << "-------------------------" << endl;
-        cout << endl;
 
     }
+    
+    cout << "-------------------------" << endl;
+    cout << endl;
+    
+    cout << "请按回车键继续" << endl;
+    cin.get();
 
 }
 
@@ -196,18 +217,159 @@ void speechManager::speechContest()
             {
                 if(this->m_Index == 1)
                 {
-                    v2.push_back(it->first);
+                    v2.push_back(it->second);
                 }
                 else
                 {
-                    vVectory.push_back(it->first);
+                    vVectory.push_back(it->second);
                 }
             }
             groupScore.clear();
         }
     }
     cout << "------------- 第" << this->m_Index << "轮比赛完毕  ------------- " << endl;
-    cin.ignore();
+    
+    cout << "请按回车键继续" << endl;
+    cin.get();
+}
+
+//显示分数
+void speechManager::showScore()
+{
+    cout << "第" << this->m_Index << "轮晋级选手分数如下" << endl;
+    
+    //设置此轮容器
+    vector<int> v;
+    if(this->m_Index == 1)
+    {
+        v =v2;
+    }
+    else
+    {
+        v = vVectory;
+    }
+    
+    //打印
+    for(vector<int>::iterator it = v.begin();it != v.end();it++)
+    {
+       cout << "编号：" << *it << " 姓名：" << this->m_speaker[*it].m_Name << " 成绩" << this->m_speaker[*it].m_Score[this->m_Index-1] <<endl;
+    }
+    
+    cout << "按回车键返回主菜单" <<endl;
+    cin.get();
+    system("clear");
+    
+    this->show_Manu();
+}
+
+//保存记录
+void speechManager::saveRecord()
+{
+    //创建对象
+    ofstream ofs;
+    
+    //打开文件
+    ofs.open("speaker.csv",ios::out | ios::app);
+    
+    //写入数据
+    for(vector<int>::iterator it = vVectory.begin();it != vVectory.end();it++)
+    {
+        ofs << *it << "," << this->m_speaker[*it].m_Score[1] << ",";
+    }
+    ofs << endl;
+    
+    //关闭文件
+    ofs.close();
+    cout << "记录已经保存" << endl;
+    
+    //有记录了，文件不为空
+    this->fileIsEmpty = false;
+}
+
+//加载记录
+void speechManager::loadRecord()
+{
+    ifstream ifs;
+    ifs.open("speaker.csv",ios::in);
+    
+    //文件不存在
+    if(!ifs.is_open())
+    {
+        cout << "文件不存在" << endl;
+        ifs.close();
+        this->fileIsEmpty = true;
+        return;
+    }
+    //文件为空
+    char ch;
+    ifs >> ch;
+    if(ifs.eof())
+    {
+        cout << "文件为空"  << endl;
+        ifs.close();
+        this->fileIsEmpty = true;
+        return;
+    }
+    //文件存在
+    
+    ifs.putback(ch);
+    this->fileIsEmpty = false;
+    
+    string data;
+    //把.csv文件的内容放进data里
+    int index = 0;
+    while(ifs >> data)
+    {
+        
+//        cout << data << endl;
+        int pos = -1;
+        int start = 0;
+        vector<string> v;
+        while(true)
+        {
+            //10011,83.6125,10012,82.7375,10002,80.725,
+            //把data里的数据拿出来，放进临时容器v里
+            pos = (int)data.find(",",start);
+            if(pos == -1)
+            {
+                break;
+            }
+            string tem = data.substr(start,pos-start);
+            v.push_back(tem);
+            start = pos + 1;
+        }
+        
+        this->m_Record.insert(make_pair(index,v));
+        index++;
+    }
+    ifs.close();
+    
+//    for(map<int,vector<string>>::iterator it = m_Record.begin();it != m_Record.end();it++)
+//    {
+//        cout << "第" << it->first << "届冠军" <<" 编号" << it->second[0] << " 姓名" << it->second[1] << endl;
+//    }
+}
+
+
+//显示分数
+void speechManager::showRecord()
+{
+    if(this->fileIsEmpty)
+    {
+        cout << "文件为空或文件不存在" << endl;
+    }
+    else
+    {
+        for(int i = 0;i < this->m_Record.size();i++)
+        {
+            cout << "第" << i + 1 << "届冠军" <<" 编号" << this->m_Record[i][0]  << " 成绩" << this->m_Record[i][1]  << " ";
+            cout << "第" << i + 1 << "届亚军" <<" 编号" << this->m_Record[i][2]  << " 成绩" << this->m_Record[i][3]  << " ";
+            cout << "第" << i + 1 << "届季军" <<" 编号" << this->m_Record[i][4]  << " 成绩" << this->m_Record[i][5]  << endl;
+        }
+    }
+    
+    system("clear");
+    cout << "按回车键继续" << endl;
     cin.get();
 }
 

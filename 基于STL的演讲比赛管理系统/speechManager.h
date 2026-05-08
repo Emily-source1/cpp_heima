@@ -8,6 +8,7 @@ using namespace std;
 #include <deque>
 #include <algorithm>
 #include <numeric>
+#include <fstream>
 
 //设计演讲管理类
 class speechManager
@@ -43,6 +44,24 @@ public:
     
     //比赛
     void speechContest();
+    
+    //显示分数
+    void showScore();
+    
+    //保存记录
+    void saveRecord();
+    
+    //加载记录
+    void loadRecord();
+    
+    //文件为空的标志
+    bool fileIsEmpty;
+    
+    //往届记录, 第几届和信息
+    map<int,vector<string>> m_Record;
+    
+    //显示分数
+    void showRecord();
     
     //析构函数
     ~speechManager();
