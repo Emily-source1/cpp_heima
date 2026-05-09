@@ -63,6 +63,9 @@ public:
     //显示分数
     void showRecord();
     
+    //清空记录
+    void clearRecord();
+    
     //析构函数
     ~speechManager();
 };

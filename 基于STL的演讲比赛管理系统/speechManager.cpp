@@ -258,8 +258,7 @@ void speechManager::showScore()
     cout << "按回车键返回主菜单" <<endl;
     cin.get();
     system("clear");
-    
-    this->show_Manu();
+
 }
 
 //保存记录
@@ -371,6 +370,38 @@ void speechManager::showRecord()
     system("clear");
     cout << "按回车键继续" << endl;
     cin.get();
+}
+
+//清空记录
+void speechManager::clearRecord()
+{
+    cout << "确认清空记录吗?" << endl;
+    cout << "1、确认 " << endl;
+    cout << "2、返回 " << endl;
+    
+    int choice;
+    cin >> choice;
+    
+    if(choice == 1)
+    {
+        ofstream ofs;
+        ofs.open("speaker.csv",ios::trunc);
+        ofs.close();
+        
+        //初始化属性
+        this->initSpeech();
+        //初始化12名选手
+        this->initSpeaker();
+        //加载记录
+        this->loadRecord();
+        
+        cout << "清空成功！" << endl;
+        
+        system("clear");
+        cout << "按回车键继续" << endl;
+        cin.get();
+        
+    }
 }
 
 //析构函数
